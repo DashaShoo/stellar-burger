@@ -1,12 +1,10 @@
+import React, { FC, useEffect } from 'react';
 import { Preloader } from '@ui';
 import { FeedUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC, useEffect } from 'react';
 import { useDispatch, useSelector, RootState } from '../../services/store';
 import { fetchFeed } from '../../services/slices/feeds';
 
 export const Feed: FC = () => {
-  /** TODO: взять переменную из стора */
   const dispatch = useDispatch();
   const { orders, loading, error } = useSelector(
     (state: RootState) => state.feed
@@ -16,9 +14,11 @@ export const Feed: FC = () => {
     dispatch(fetchFeed());
   }, [dispatch]);
 
-  if (loading) {
-    return <Preloader />;
+  if (error) {
+    return <p className='text text_type_main-default'>Ошибка: {error}</p>;
   }
 
-  <FeedUI orders={orders} handleGetFeeds={() => {}} />;
+  return (
+    <FeedUI orders={orders} handleGetFeeds={() => dispatch(fetchFeed())} />
+  );
 };

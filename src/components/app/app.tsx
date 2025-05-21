@@ -1,32 +1,34 @@
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AppHeader } from '@components';
+import { ConstructorPage } from '../../pages/constructor-page';
+import { Feed } from '../../pages/feed';
+import { Login } from '../../pages/login';
+import { Register } from '../../pages/register';
+import { ForgotPassword } from '../../pages/forgot-password';
+import { ResetPassword } from '../../pages//reset-password';
+import { Profile } from '../../pages/profile';
+import { ProfileOrders } from '../../pages/profile-orders';
+import { NotFound404 } from '../../pages/not-fount-404';
+import { OrderInfo } from '../../components/order-info';
+import { IngredientDetails } from '../../components/ingredient-details';
+import { Modal } from '../../components/modal';
+import { RootState, useDispatch, useSelector } from '../../services/store';
+import { fetchIngredients } from '../../services/slices/ingredients';
+import { Preloader } from '../ui/preloader/preloader';
 import {
-  ConstructorPage,
-  Feed,
-  ForgotPassword,
-  Login,
-  NotFound404,
-  Profile,
-  ProfileOrders,
-  Register,
-  ResetPassword,
-} from '@pages';
-
-import '../../index.css';
-import styles from './app.module.css';
-import { BrowserRouter } from 'react-router-dom';
-import {
-  AppHeader,
-  IngredientDetails,
-  Modal,
-  OrderInfo,
   ProtectedRoute,
-} from '@components';
+  PublicRoute
+} from '../protected-route/protected-route';
 
-import { Routes, Route } from 'react-router-dom';
-console.log('BURGER_API_URL =', URL);
+const App = () => {
+  const dispatch = useDispatch();
 
-const App = () => (
-  
-  <div className={styles.app}>
+  useEffect(() => {
+    dispatch(fetchIngredients());
+  }, [dispatch]);
+
+  return (
     <BrowserRouter>
       <AppHeader />
       <Routes>
@@ -55,33 +57,33 @@ const App = () => (
         <Route
           path='/login'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <Login />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/register'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <Register />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <ForgotPassword />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
           path='/reset-password'
           element={
-            <ProtectedRoute>
+            <PublicRoute>
               <ResetPassword />
-            </ProtectedRoute>
+            </PublicRoute>
           }
         />
         <Route
@@ -104,7 +106,10 @@ const App = () => (
           path='/profile/orders/:number'
           element={
             <ProtectedRoute>
-              <Modal title='Детали заказа' onClose={() => window.history.back()}>
+              <Modal
+                title='Детали заказа'
+                onClose={() => window.history.back()}
+              >
                 <OrderInfo />
               </Modal>
             </ProtectedRoute>
@@ -113,7 +118,7 @@ const App = () => (
         <Route path='*' element={<NotFound404 />} />
       </Routes>
     </BrowserRouter>
-  </div>
-);
+  );
+};
 
 export default App;
