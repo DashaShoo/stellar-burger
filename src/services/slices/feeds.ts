@@ -10,7 +10,7 @@ interface FeedState {
   error: string | null;
 }
 
-const initialFeedState: FeedState = {
+const initialState: FeedState = {
   orders: [],
   total: 0,
   totalToday: 0,
@@ -22,22 +22,25 @@ export const fetchFeed = createAsyncThunk<
   { orders: TOrder[]; total: number; totalToday: number },
   void,
   { rejectValue: string }
->('feed/fetch', async (_, { rejectWithValue }) => {
-  try {
-    const data = await getFeedsApi();
-    return {
-      orders: data.orders,
-      total: data.total,
-      totalToday: data.totalToday
-    };
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+>(
+  'feed/fetch',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getFeedsApi();
+      return {
+        orders: response.orders,
+        total: response.total,
+        totalToday: response.totalToday
+      };
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-});
+);
 
 const feedSlice = createSlice({
   name: 'feed',
-  initialState: initialFeedState,
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -45,25 +48,16 @@ const feedSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchFeed.fulfilled,
-        (
-          state,
-          action: PayloadAction<{
-            orders: TOrder[];
-            total: number;
-            totalToday: number;
-          }>
-        ) => {
-          state.orders = action.payload.orders;
-          state.total = action.payload.total;
-          state.totalToday = action.payload.totalToday;
-          state.loading = false;
-        }
-      )
+      .addCase(fetchFeed.fulfilled, (state, action) => {
+        const { orders, total, totalToday } = action.payload;
+        state.orders = orders;
+        state.total = total;
+        state.totalToday = totalToday;
+        state.loading = false;
+      })
       .addCase(fetchFeed.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch feed';
+        state.error = action.payload ?? 'Failed to fetch feed';
       });
   }
 });

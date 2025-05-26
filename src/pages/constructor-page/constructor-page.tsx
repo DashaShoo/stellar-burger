@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { fetchIngredients } from '../../services/slices/ingredients';
 
@@ -10,8 +10,7 @@ import { Preloader } from '../../components/ui';
 
 export const ConstructorPage: FC = () => {
   const dispatch = useDispatch();
-  const loading = useSelector((state) => state.ingredients.loading);
-  const error = useSelector((state) => state.ingredients.error);
+  const { loading, error } = useSelector(state => state.ingredients);
 
   useEffect(() => {
     dispatch(fetchIngredients());
@@ -21,33 +20,16 @@ export const ConstructorPage: FC = () => {
     return <p className='text text_type_main-default'>{error}</p>;
   }
 
-  // return loading ? (
-  //   <Preloader />
-  // ) : (
-  //   <main className={styles.containerMain}>
-  //     <h1
-  //       className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}
-  //     >
-  //       Соберите бургер
-  //     </h1>
-  //     <div className={`${styles.main} pl-5 pr-5`}>
-  //       <BurgerIngredients />
-  //       <BurgerConstructor />
-  //     </div>
-  //   </main>
-  // );
-
   return (
     <main className={styles.containerMain}>
-      <h1
-        className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}
-      >
+      <h1 className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}>
         Соберите бургер
       </h1>
-      <div className={`${styles.main} pl-5 pr-5`}>
+
+      <section className={`${styles.main} pl-5 pr-5`}>
         <BurgerIngredients />
         <BurgerConstructor />
-      </div>
+      </section>
     </main>
   );
 };
