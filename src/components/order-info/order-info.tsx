@@ -18,17 +18,17 @@ export const OrderInfo: FC = () => {
   );
 
   useEffect(() => {
+    if (!number) return;
     dispatch(fetchOrderByNumber(Number(number)))
       .unwrap()
       .then((orders) => {
-        setOrderData(orders[0] ?? null);
+        setOrderData(orders.length > 0 ? orders[0] : null);
       })
-      .catch((err) => {
-        console.error('Ошибка при загрузке заказа:', err);
+      .catch((error) => {
+        console.error('Ошибка загрузки заказа:', error);
       });
   }, [dispatch, number]);
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 

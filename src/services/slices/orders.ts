@@ -13,7 +13,7 @@ interface OrdersState {
   error: string | null;
 }
 
-const initialOrdersState: OrdersState = {
+const initialState: OrdersState = {
   orders: [],
   currentOrder: null,
   loading: false,
@@ -24,44 +24,53 @@ export const fetchOrders = createAsyncThunk<
   TOrder[],
   void,
   { rejectValue: string }
->('orders/fetch', async (_, { rejectWithValue }) => {
-  try {
-    const data = await getOrdersApi();
-    return data;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+>(
+  'orders/fetch',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getOrdersApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-});
+);
 
 export const createOrder = createAsyncThunk<
   { order: TOrder; name: string },
   string[],
   { rejectValue: string }
->('orders/create', async (ingredients, { rejectWithValue }) => {
-  try {
-    const data = await orderBurgerApi(ingredients);
-    return data;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+>(
+  'orders/create',
+  async (ingredients, { rejectWithValue }) => {
+    try {
+      const result = await orderBurgerApi(ingredients);
+      return result;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-});
+);
 
 export const fetchOrderByNumber = createAsyncThunk<
   TOrder[],
   number,
   { rejectValue: string }
->('orders/fetchByNumber', async (orderNumber, { rejectWithValue }) => {
-  try {
-    const data = await getOrderByNumberApi(orderNumber);
-    return data.orders;
-  } catch (err: any) {
-    return rejectWithValue(err.message);
+>(
+  'orders/fetchByNumber',
+  async (orderNumber, { rejectWithValue }) => {
+    try {
+      const result = await getOrderByNumberApi(orderNumber);
+      return result.orders;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
   }
-});
+);
 
 const ordersSlice = createSlice({
   name: 'orders',
-  initialState: initialOrdersState,
+  initialState,
   reducers: {
     clearCurrentOrder(state) {
       state.currentOrder = null;
@@ -73,48 +82,41 @@ const ordersSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchOrders.fulfilled,
-        (state, action: PayloadAction<TOrder[]>) => {
-          state.orders = action.payload;
-          state.loading = false;
-        }
-      )
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        state.orders = action.payload;
+        state.loading = false;
+      })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch orders';
+        state.error = action.payload ?? 'Failed to fetch orders';
       })
+
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        createOrder.fulfilled,
-        (state, action: PayloadAction<{ order: TOrder; name: string }>) => {
-          const { order } = action.payload;
-          state.orders.unshift(order);
-          state.currentOrder = order;
-          state.loading = false;
-        }
-      )
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.orders.unshift(action.payload.order);
+        state.currentOrder = action.payload.order;
+        state.loading = false;
+      })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to create order';
+        state.error = action.payload ?? 'Failed to create order';
       })
+
       .addCase(fetchOrderByNumber.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(
-        fetchOrderByNumber.fulfilled,
-        (state, action: PayloadAction<TOrder[]>) => {
-          state.currentOrder = null;
-          state.loading = false;
-        }
-      )
+      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
+        // Для явности сбрасываем currentOrder в null, как в твоём варианте
+        state.currentOrder = null;
+        state.loading = false;
+      })
       .addCase(fetchOrderByNumber.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch order';
+        state.error = action.payload ?? 'Failed to fetch order';
       });
   }
 });

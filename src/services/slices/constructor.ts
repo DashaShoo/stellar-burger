@@ -16,29 +16,31 @@ const constructorSlice = createSlice({
   initialState,
   reducers: {
     setBun: {
+      prepare(ingredient: TIngredient) {
+        return {
+          payload: { ...ingredient, id: nanoid() }
+        };
+      },
       reducer(state, action: PayloadAction<TConstructorIngredient>) {
         state.bun = action.payload;
-      },
-      prepare(ingredient: TIngredient) {
-        return { payload: { ...ingredient, id: nanoid() } };
       }
     },
     clearBun(state) {
       state.bun = null;
     },
     addIngredient: {
-      reducer(state, action: PayloadAction<TConstructorIngredient>) {
-        state.ingredients.push(action.payload);
-      },
       prepare(ingredient: TIngredient) {
         return {
           payload: { ...ingredient, id: nanoid() }
         };
+      },
+      reducer(state, action: PayloadAction<TConstructorIngredient>) {
+        state.ingredients = [...state.ingredients, action.payload];
       }
     },
     removeIngredient(state, action: PayloadAction<string>) {
       state.ingredients = state.ingredients.filter(
-        (item) => item.id !== action.payload
+        ingredient => ingredient.id !== action.payload
       );
     },
     moveIngredient(
@@ -46,8 +48,10 @@ const constructorSlice = createSlice({
       action: PayloadAction<{ fromIndex: number; toIndex: number }>
     ) {
       const { fromIndex, toIndex } = action.payload;
-      const [moved] = state.ingredients.splice(fromIndex, 1);
-      state.ingredients.splice(toIndex, 0, moved);
+      const ingredientList = [...state.ingredients];
+      const [moved] = ingredientList.splice(fromIndex, 1);
+      ingredientList.splice(toIndex, 0, moved);
+      state.ingredients = ingredientList;
     },
     clearConstructor(state) {
       state.bun = null;

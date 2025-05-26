@@ -3,21 +3,18 @@ import { useDispatch, useSelector, RootState } from '../../services/store';
 import { fetchUser } from '../../services/slices/user';
 import { AppHeaderUI } from '@ui';
 
+const hasAccessToken = (): boolean =>
+  document.cookie.includes('accessToken=');
+
 export const AppHeader: FC = () => {
   const dispatch = useDispatch();
   const { user, loading } = useSelector((state: RootState) => state.user);
 
-  // При монтировании проверяем наличие токена и подтягиваем профиль
   useEffect(() => {
-    const hasToken = document.cookie
-      .split('; ')
-      .some((row) => row.startsWith('accessToken='));
-    if (hasToken && !user && !loading) {
+    if (hasAccessToken() && !user && !loading) {
       dispatch(fetchUser());
     }
   }, [dispatch, user, loading]);
 
-  const userName = user?.name || '';
-
-  return <AppHeaderUI userName={userName} />;
+  return <AppHeaderUI userName={user?.name ?? ''} />;
 };
