@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { BurgerConstructorUI } from '../ui/burger-constructor';
 import { createOrder, clearCurrentOrder } from '../../services/slices/orders';
 import { TConstructorIngredient } from '../../utils/types';
+import { clearConstructor } from '../../services/slices/constructor';
 
 export const BurgerConstructor: FC = () => {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ export const BurgerConstructor: FC = () => {
 
   const handleCloseOrder = () => {
     dispatch(clearCurrentOrder());
+    dispatch(clearConstructor());
   };
 
   // Подсчёт цены

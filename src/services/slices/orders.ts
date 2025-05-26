@@ -110,7 +110,6 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
-        // Для явности сбрасываем currentOrder в null, как в твоём варианте
         state.currentOrder = null;
         state.loading = false;
       })
@@ -123,3 +122,4 @@ const ordersSlice = createSlice({
 
 export const { clearCurrentOrder } = ordersSlice.actions;
 export const ordersReducer = ordersSlice.reducer;
+export { initialState as initialOrderState };
